@@ -861,9 +861,14 @@ impl HttpJsonRpc {
                     .await?;
                 Ok(JsonGetPayloadResponse::V2(response).into())
             }
-            ForkName::Base | ForkName::Altair | ForkName::Deneb | ForkName::Electra => Err(
-                Error::UnsupportedForkVariant(format!("called get_payload_v2 with {}", fork_name)),
-            ),
+            ForkName::Base
+            | ForkName::Altair
+            | ForkName::Deneb
+            | ForkName::Electra
+            | ForkName::EIP7732 => Err(Error::UnsupportedForkVariant(format!(
+                "called get_payload_v2 with {}",
+                fork_name
+            ))),
         }
     }
 
@@ -889,7 +894,8 @@ impl HttpJsonRpc {
             | ForkName::Altair
             | ForkName::Bellatrix
             | ForkName::Capella
-            | ForkName::Electra => Err(Error::UnsupportedForkVariant(format!(
+            | ForkName::Electra
+            | ForkName::EIP7732 => Err(Error::UnsupportedForkVariant(format!(
                 "called get_payload_v3 with {}",
                 fork_name
             ))),
@@ -918,7 +924,8 @@ impl HttpJsonRpc {
             | ForkName::Altair
             | ForkName::Bellatrix
             | ForkName::Capella
-            | ForkName::Deneb => Err(Error::UnsupportedForkVariant(format!(
+            | ForkName::Deneb
+            | ForkName::EIP7732 => Err(Error::UnsupportedForkVariant(format!(
                 "called get_payload_v4 with {}",
                 fork_name
             ))),
@@ -1271,6 +1278,7 @@ impl HttpJsonRpc {
                     Err(Error::RequiredMethodUnsupported("engine_getPayloadv4"))
                 }
             }
+            ForkName::EIP7732 => todo!("EIP-7732 Engine API get_payload"),
             ForkName::Base | ForkName::Altair => Err(Error::UnsupportedForkVariant(format!(
                 "called get_payload with {}",
                 fork_name

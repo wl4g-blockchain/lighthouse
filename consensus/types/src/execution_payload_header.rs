@@ -114,6 +114,9 @@ impl<E: EthSpec> ExecutionPayloadHeader<E> {
             ForkName::Electra => {
                 ExecutionPayloadHeaderElectra::from_ssz_bytes(bytes).map(Self::Electra)
             }
+            ForkName::EIP7732 => Err(ssz::DecodeError::BytesInvalid(format!(
+                "unsupported fork for ExecutionPayloadHeader: {fork_name}",
+            ))),
         }
     }
 
@@ -126,6 +129,7 @@ impl<E: EthSpec> ExecutionPayloadHeader<E> {
                 // Max size of variable length `extra_data` field
                 E::max_extra_data_bytes() * <u8 as Encode>::ssz_fixed_len()
             }
+            ForkName::EIP7732 => 0,
         }
     }
 
@@ -435,7 +439,8 @@ impl<E: EthSpec> ForkVersionDeserialize for ExecutionPayloadHeader<E> {
             ForkName::Capella => Self::Capella(serde_json::from_value(value).map_err(convert_err)?),
             ForkName::Deneb => Self::Deneb(serde_json::from_value(value).map_err(convert_err)?),
             ForkName::Electra => Self::Electra(serde_json::from_value(value).map_err(convert_err)?),
-            ForkName::Base | ForkName::Altair => {
+            // FIXME(EIP7732): Check this
+            ForkName::Base | ForkName::Altair | ForkName::EIP7732 => {
                 return Err(serde::de::Error::custom(format!(
                     "ExecutionPayloadHeader failed to deserialize: unsupported fork '{}'",
                     fork_name
